@@ -1,0 +1,26 @@
+# Virtual environment - multiple formats
+solo/solov/
+solo\solov\
+solo/solov/**
+solo\solov\**
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Other ignores...
+
+# Test-related caches
+.pytest_cache/
+
+# Log files
+*.log
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Other possible items to ignore
+*.db
+*.sqlite3

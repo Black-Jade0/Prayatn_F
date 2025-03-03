@@ -15,10 +15,50 @@ datasource db {
 
 
 model Admin {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  name       String
-  email      String   @unique
-  password   String
-  department String
-  createdAt  DateTime @default(now())
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String     @unique
+  password     String
+  department   Department @relation(fields: [departmentId], references: [id])
+  departmentId String     @db.ObjectId
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Department {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String      @unique
+  description String?
+  admins      Admin[]
+  complaints  Complaint[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Complaint {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  name         String     // Name of person lodging the complaint
+  mobileNumber String
+  locality     String
+  description  String
+  status       Status     @default(PENDING)
+  priority     Priority   @default(LOW)
+  attachments  Bytes[]    // Array of image data stored as bytes
+  department   Department @relation(fields: [departmentId], references: [id])
+  departmentId String     @db.ObjectId
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+enum Status {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+  REJECTED
+}
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }

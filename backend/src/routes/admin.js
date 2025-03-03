@@ -4,46 +4,81 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const JWT_PASSWORD = process.env.JWT_PASSWORD;
 
+router.post("/departmentcreation", async (req, res) => {
+  const body = req.body;
+  console.log("Got the body: ", body);
+  if (!body.name || !body.description) {
+    console.error({
+      message: "Invalid or Insufficent parameters  ",
+      error: err,
+    });
+    res.status(511).json({ message: "Department  creation failed !" });
+  }
+  try {
+    let dept = await prisma.department.findFirst({
+      where: {
+        name: body.name,
+      },
+    });
+    if (dept) {
+      console.log({ message: "Department already exist with same name" });
+      res
+        .status(511)
+        .json({ message: "Department already exist with same name" });
+      return;
+    }
+    dept = await prisma.department.create({
+      data: {
+        name: body.name,
+        description: body.description,
+      },
+    });
+
+    res.json({ message: "Department created successfully !" });
+  } catch (err) {
+    console.error({
+      message: "Got the error while creating department ! ",
+      error: err,
+    });
+    res.status(511).json({ message: "Department creation failed !" });
+  }
+});
+
 router.post("/signup", async (req, res) => {
-    //Route for making admins i.e. adding authority
-    const body = req.body;
-    console.log("Got the body: ", body);
-    if (!body.name || !body.email || !body.password || !body.department) {
-        console.error({ message: "Invalid credentails  ", error: err });
-        res.status(511).json({ message: "Signup failed !" });
+  //Route for making admins i.e. adding authority
+  const body = req.body;
+  console.log("Got the body: ", body);
+  if (!body.name || !body.email || !body.password || !body.departmentId) {
+    console.error({ message: "Invalid credentails  ", error: err });
+    res.status(511).json({ message: "Signup failed !" });
+  }
+  try {
+    let user = await prisma.admin.findFirst({
+      where: {
+        email: body.email,
+      },
+    });
+    if (user) {
+      console.log({ message: "User already exist with same emailId" });
+      res.status(511).json({ message: "User already exist with same emailId" });
+      return;
     }
-    try {
-        let user = await prisma.admin.findFirst({
-            where: {
-                email: body.email,
-            },
-        });
-        if (user) {
-            console.log({ message: "User already exist with same emailId" });
-            res.status(511).json({
-                message: "User already exist with same emailId",
-            });
-            return;
-        }
-        user = await prisma.admin.create({
-            data: {
-                name: body.name,
-                email: body.email,
-                password: body.password,
-                department: body.department,
-            },
-        });
-        const userId = user.id;
-        const token = jwt.sign({ userId: userId }, JWT_PASSWORD);
-        res.cookie("token", token);
-        res.json({ message: "signup successful !" });
-    } catch (err) {
-        console.error({
-            message: "Got the error while signing up ",
-            error: err,
-        });
-        res.status(511).json({ message: "Signup failed !" });
-    }
+    user = await prisma.admin.create({
+      data: {
+        name: body.name,
+        email: body.email,
+        password: body.password,
+        departmentId: body.departmentId,
+      },
+    });
+    const userId = user.id;
+    const token = jwt.sign({ userId: userId }, JWT_PASSWORD);
+    res.cookie("token", token);
+    res.json({ message: "signup successful !" });
+  } catch (err) {
+    console.error({ message: "Got the error while signing up ", error: err });
+    res.status(511).json({ message: "Signup failed !" });
+  }
 });
 
 router.post("/signin", async (req, res) => {
