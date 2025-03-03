@@ -11,6 +11,7 @@ html{
   width: screen;
   max-width: 2000px;
   margin: auto;
-  --primary-color: #7a6ad8;
-  --secondary-color: rgb(241, 240, 254);
+  --primary-color: #3E5879;
+  --secondary-color: #213555;
+  --boom-color: #F5EFE7;
 }
