@@ -1,10 +1,16 @@
 import React, { useState } from "react";
+import AdminSignin from "../Components/Adminsignin";
 
 const Home = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAdminsignin, setIsadminsignin] = useState(false);
 
     return (
-        <div className="relative h-screen w-screen max-w-[2000px] max-h-[1000px] bg-[var(--secondary-color)] flex flex-col">
+        <div
+            className={`relative h-screen w-screen max-w-[2000px] max-h-[1000px] bg-[var(--secondary-color)] flex flex-col ${
+                isModalOpen ? "bg-opacity-30" : ""
+            }`}
+        >
             <div className="w-full h-full flex flex-col">
                 {/* Navigation Bar */}
                 <nav className="w-full h-[12%] py-6 px-10 flex justify-between items-center  bg-opacity-80 top-0 z-50">
@@ -96,33 +102,38 @@ const Home = () => {
             </div>
 
             <div
-                className={`absolute flex items-center justify-center w-full ${
-                    isModalOpen ? "scale-100" : "scale-0 "
-                } h-full bg-gray-900 bg-opacity-50`}
+                className={`absolute flex items-center justify-center w-full  h-full bg-gray-900 bg-opacity-50`}
             >
-                <div
-                    className={` p-8 rounded-lg shadow-lg text-center transition-all duration-300 ease-out transform ${
-                        isModalOpen
-                            ? "scale-100 opacity-100"
-                            : "scale-75 opacity-0"
-                    }`}
-                >
-                    <h2 className="text-2xl font-bold mb-4">Continue as</h2>
-                    <div className="flex gap-4">
-                        <button className="px-6 py-2 bg-blue-500 rounded hover:bg-blue-600">
-                            User
-                        </button>
-                        <button className="px-6 py-2 bg-green-500 rounded hover:bg-green-600">
-                            Admin
+                {isAdminsignin ? (
+                    <AdminSignin />
+                ) : (
+                    <div
+                        className={` p-8 rounded-lg shadow-lg text-center transition-all duration-300 ease-out transform ${
+                            isModalOpen
+                                ? "scale-100 opacity-100"
+                                : "scale-75 opacity-0"
+                        }`}
+                    >
+                        <h2 className="text-2xl font-bold mb-4">Continue as</h2>
+                        <div className="flex gap-4">
+                            <button className="px-6 py-2 bg-blue-500 rounded hover:bg-blue-600">
+                                User
+                            </button>
+                            <button
+                                className="px-6 py-2 bg-green-500 rounded hover:bg-green-600"
+                                onClick={() => setIsadminsignin(true)}
+                            >
+                                Admin
+                            </button>
+                        </div>
+                        <button
+                            className="mt-4 text-gray-500 hover:text-gray-700"
+                            onClick={() => setIsModalOpen(false)}
+                        >
+                            Close
                         </button>
                     </div>
-                    <button
-                        className="mt-4 text-gray-500 hover:text-gray-700"
-                        onClick={() => setIsModalOpen(false)}
-                    >
-                        Close
-                    </button>
-                </div>
+                )}
             </div>
         </div>
     );
