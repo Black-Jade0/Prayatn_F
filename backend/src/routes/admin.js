@@ -4,11 +4,51 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const JWT_PASSWORD = process.env.JWT_PASSWORD;
 
+router.post("/departmentcreation", async (req, res) => {
+  const body = req.body;
+  console.log("Got the body: ", body);
+  if (!body.name || !body.description) {
+    console.error({
+      message: "Invalid or Insufficent parameters  ",
+      error: err,
+    });
+    res.status(511).json({ message: "Department  creation failed !" });
+  }
+  try {
+    let dept = await prisma.department.findFirst({
+      where: {
+        name: body.name,
+      },
+    });
+    if (dept) {
+      console.log({ message: "Department already exist with same name" });
+      res
+        .status(511)
+        .json({ message: "Department already exist with same name" });
+      return;
+    }
+    dept = await prisma.department.create({
+      data: {
+        name: body.name,
+        description: body.description,
+      },
+    });
+
+    res.json({ message: "Department created successfully !" });
+  } catch (err) {
+    console.error({
+      message: "Got the error while creating department ! ",
+      error: err,
+    });
+    res.status(511).json({ message: "Department creation failed !" });
+  }
+});
+
 router.post("/signup", async (req, res) => {
   //Route for making admins i.e. adding authority
   const body = req.body;
   console.log("Got the body: ", body);
-  if (!body.name || !body.email || !body.password || !body.department) {
+  if (!body.name || !body.email || !body.password || !body.departmentId) {
     console.error({ message: "Invalid credentails  ", error: err });
     res.status(511).json({ message: "Signup failed !" });
   }
@@ -28,7 +68,7 @@ router.post("/signup", async (req, res) => {
         name: body.name,
         email: body.email,
         password: body.password,
-        department: body.department,
+        departmentId: body.departmentId,
       },
     });
     const userId = user.id;

@@ -1,2 +1,3 @@
-solo/solov/
-solov/
+solo/solov/   # Ignore only the virtual environment inside solo
+!solo/        # Keep the solo folder itself tracked
+solo\solov
