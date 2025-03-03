@@ -1,3 +1,22 @@
-solo/solov/   # Ignore only the virtual environment inside solo
-!solo/        # Keep the solo folder itself tracked
-solo\solov
+# Virtual environment
+solo/solov/
+solo\solov\
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Test-related caches
+.pytest_cache/
+
+# Log files
+*.log
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Other possible items to ignore
+*.db
+*.sqlite3
