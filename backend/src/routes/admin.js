@@ -82,7 +82,7 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/signin", async (req, res) => {
-    //Login route for authority
+    //Login route for authority and give information about user 
     const body = req.body;
     console.log("Got the body: ", body);
     if (!body.email || !body.password) {
@@ -99,7 +99,7 @@ router.post("/signin", async (req, res) => {
         if (user) {
             const token = jwt.sign({ userId: user.id }, JWT_PASSWORD);
             res.cookie("token", token);
-            res.json({ message: "signin successful !" });
+            res.json({ message: "signin successful !",userData:user });
         } else {
             console.log({ message: "User not found, check the credentials" });
             res.status(411).json({ message: "User not found !" });
