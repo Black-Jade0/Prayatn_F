@@ -59,8 +59,8 @@ router.post(
         where: {
           locality,
           description: standardizedText,
-          createdAt: {
-            gte: new Date(new Date() - 2 * 24 * 60 * 60 * 1000),
+          status: {
+            in: ["PENDING", "IN_PROGRESS"], // Use the 'in' operator for multiple status values
           },
         },
       });

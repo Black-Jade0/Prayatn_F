@@ -46,9 +46,6 @@ const Home = () => {
                     <h2 className="text-2xl font-bold">AI Complaint System</h2>
                     <div className="space-x-6">
                         <a href="#" className=" ">
-                            Home
-                        </a>
-                        <a href="#" className=" ">
                             Features
                         </a>
                         <a href="#" className=" ">
@@ -73,8 +70,7 @@ const Home = () => {
                             </span>
                         </h1>
                         <p className="mt-6 text-lg max-w-xl leading-relaxed">
-                            AI-driven complaint analysis and routing system to
-                            streamline public service grievances.
+                        <b>Your Concerns, Our Priority:</b> We use AI to simplify the complaint process, ensuring your issues are heard and addressed efficiently.
                         </p>
                         <button className="mt-8 bg-[var(--boom-color)] px-8 py-3 text-lg font-medium rounded-full shadow-lg hover:bg-[var(--boom-color)] transition hover:scale-105">
                             Track Progress
@@ -104,11 +100,6 @@ const Home = () => {
                                 desc: "Provides actionable insights for governance.",
                                 icon: "📊",
                             },
-                            {
-                                title: "User-Friendly Reports",
-                                desc: "Generates easy-to-read performance reports.",
-                                icon: "📑",
-                            },
                         ].map((feature, index) => (
                             <div
                                 key={index}
@@ -120,7 +111,7 @@ const Home = () => {
                                 <h2 className="text-md font-semibold text-[var(--boom-color)]">
                                     {feature.title}
                                 </h2>
-                                <p className="mt-1 text-xs">{feature.desc}</p>
+                                <p className="mt-1 text-xs feature-desc">{feature.desc}</p>
                             </div>
                         ))}
                     </div>
