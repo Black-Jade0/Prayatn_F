@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const AdminSignin = () => {
+const AdminSignin = ({ closeModal, signincomplete }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
@@ -23,9 +23,11 @@ const AdminSignin = () => {
 
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Signin failed");
+            data.userData && localStorage.setItem("userData", JSON.stringify(data.userData));
 
             alert("Signin successful!");
-            // Redirect or store token if needed
+            signincomplete();
+            closeModal(); // Close modal after successful sign-in
         } catch (err) {
             setError(err.message);
         } finally {
@@ -34,8 +36,16 @@ const AdminSignin = () => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen z-20 bg-gray-100">
-            <div className="bg-white p-6 rounded-lg shadow-md w-80">
+        <div className="flex flex-col items-center justify-center w-full h-full z-20">
+            <div className="bg-white p-6 rounded-lg shadow-md w-80 relative">
+                {/* Close Button */}
+                <button
+                    onClick={closeModal}
+                    className="absolute top-2 right-2 hover:text-gray-900"
+                >
+                    ✖
+                </button>
+
                 <h2 className="text-xl font-semibold text-center mb-4">
                     Admin Sign In
                 </h2>
