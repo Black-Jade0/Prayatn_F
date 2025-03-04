@@ -1,18 +1,50 @@
 import React, { useState } from "react";
+import AdminSignin from "../Components/Adminsignin";
+import Adminhome from "./Admin/Adminhome";
+import { useEffect } from "react";
 
 const Home = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAdminSignin, setIsAdminSignin] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const res = await fetch(
+                    "http://localhost:3000/admin/check-auth",
+                    {
+                        method: "GET",
+                        credentials: "include", // Send cookies
+                    }
+                );
+
+                if (res.ok) {
+                    console.log("token found")
+                    setIsAuthenticated(true);
+                } else {
+                    setIsAuthenticated(false);
+                }
+            } catch (error) {
+                console.error("Auth check failed:", error);
+                setIsAuthenticated(false);
+            }
+        };
+
+        checkAuth();
+    });
+
+    if (isAuthenticated) {
+        return <Adminhome />;
+    }
 
     return (
-        <div className="relative h-screen w-screen max-w-[2000px] max-h-[1000px] bg-[var(--secondary-color)] flex flex-col">
+        <div
+            className={`relative h-screen w-screen max-w-[2000px] max-h-[1000px] bg-[var(--secondary-color)] flex flex-col`}
+        >
             <div className="w-full h-full flex flex-col">
                 {/* Navigation Bar */}
-                <nav className="w-full h-[12%] py-6 px-10 flex justify-between items-center  bg-opacity-80 top-0 z-50">
+                <nav className="w-full h-[12%] py-6 px-10 flex justify-between items-center bg-opacity-80 top-0 z-50">
                     <h2 className="text-2xl font-bold">AI Complaint System</h2>
                     <div className="space-x-6">
-                        <a href="#" className=" ">
-                            Home
-                        </a>
                         <a href="#" className=" ">
                             Features
                         </a>
@@ -21,9 +53,9 @@ const Home = () => {
                         </a>
                         <button
                             className="bg-[var(--boom-color)] px-6 py-2 rounded-full shadow-lg hover:bg-[var(--boom-color)] transition"
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={() => setIsAdminSignin(true)}
                         >
-                            Get Started
+                            Login as Admin
                         </button>
                     </div>
                 </nav>
@@ -37,15 +69,11 @@ const Home = () => {
                                 to Solve
                             </span>
                         </h1>
-                        <p className="mt-6 text-lg  max-w-xl leading-relaxed">
-                            AI-driven complaint analysis and routing system to
-                            streamline public service grievances.
+                        <p className="mt-6 text-lg max-w-xl leading-relaxed">
+                        <b>Your Concerns, Our Priority:</b> We use AI to simplify the complaint process, ensuring your issues are heard and addressed efficiently.
                         </p>
-                        <button
-                            className="mt-8 bg-[var(--boom-color)] px-8 py-3 text-lg font-medium rounded-full shadow-lg hover:bg-[var(--boom-color)] transition hover:scale-105"
-                            onClick={() => setIsModalOpen(true)}
-                        >
-                            Get Started
+                        <button className="mt-8 bg-[var(--boom-color)] px-8 py-3 text-lg font-medium rounded-full shadow-lg hover:bg-[var(--boom-color)] transition hover:scale-105">
+                            Track Progress
                         </button>
                     </div>
 
@@ -72,15 +100,10 @@ const Home = () => {
                                 desc: "Provides actionable insights for governance.",
                                 icon: "📊",
                             },
-                            {
-                                title: "User-Friendly Reports",
-                                desc: "Generates easy-to-read performance reports.",
-                                icon: "📑",
-                            },
                         ].map((feature, index) => (
                             <div
                                 key={index}
-                                className={`bg-[var(--primary-color)] p-4 rounded-lg shadow-lg flex flex-col items-center text-center transition transform hover:scale-105 hover:shadow-xl w-[18%] `}
+                                className={`bg-[var(--primary-color)] p-4 rounded-lg shadow-lg flex flex-col items-center text-center transition transform hover:scale-105 hover:shadow-xl w-[18%]`}
                             >
                                 <div className="text-2xl mb-2 text-[var(--boom-color)]">
                                     {feature.icon}
@@ -88,42 +111,23 @@ const Home = () => {
                                 <h2 className="text-md font-semibold text-[var(--boom-color)]">
                                     {feature.title}
                                 </h2>
-                                <p className="mt-1 text-xs">{feature.desc}</p>
+                                <p className="mt-1 text-xs feature-desc">{feature.desc}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </div>
 
-            <div
-                className={`absolute flex items-center justify-center w-full ${
-                    isModalOpen ? "scale-100" : "scale-0 "
-                } h-full bg-gray-900 bg-opacity-50`}
-            >
+            {/* Admin Sign-in Modal */}
+            {isAdminSignin && (
                 <div
-                    className={` p-8 rounded-lg shadow-lg text-center transition-all duration-300 ease-out transform ${
-                        isModalOpen
-                            ? "scale-100 opacity-100"
-                            : "scale-75 opacity-0"
-                    }`}
+                    className={`${
+                        isAdminSignin ? "scale-100" : "scale-0"
+                    } transition-all ease-in duration-400 transform absolute flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50 `}
                 >
-                    <h2 className="text-2xl font-bold mb-4">Continue as</h2>
-                    <div className="flex gap-4">
-                        <button className="px-6 py-2 bg-blue-500 rounded hover:bg-blue-600">
-                            User
-                        </button>
-                        <button className="px-6 py-2 bg-green-500 rounded hover:bg-green-600">
-                            Admin
-                        </button>
-                    </div>
-                    <button
-                        className="mt-4 text-gray-500 hover:text-gray-700"
-                        onClick={() => setIsModalOpen(false)}
-                    >
-                        Close
-                    </button>
+                    <AdminSignin closeModal={() => setIsAdminSignin(false)} signincomplete = {()=> setIsAuthenticated(true)}/>
                 </div>
-            </div>
+            )}
         </div>
     );
 };

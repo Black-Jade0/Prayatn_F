@@ -11,7 +11,10 @@ html{
   width: screen;
   max-width: 2000px;
   margin: auto;
-  --primary-color: #3E5879;
-  --secondary-color: #213555;
-  --boom-color: #F5EFE7;
+  --primary-color: #55356E;
+  --secondary-color: #C3ACD0;
+  --boom-color: #F7EFE5;
+}
+.feature-desc {
+  color: #C3ACD0;
 }
