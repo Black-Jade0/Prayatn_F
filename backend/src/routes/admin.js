@@ -88,7 +88,7 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/signin", async (req, res) => {
-    //Login route for authority
+    //Login route for authority and give information about user 
     const body = req.body;
     console.log("Got the body: ", body);
     if (!body.email || !body.password) {
