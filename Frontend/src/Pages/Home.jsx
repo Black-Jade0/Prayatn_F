@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AdminSignin from "../Components/Adminsignin";
-import Adminhome from "./Admin/Adminhome";
+import Adminhome from "../../public/Adminhome";
 import { useEffect } from "react";
 
 const Home = () => {

@@ -1,0 +1,44 @@
+{
+    "name": "Admin Name",
+    "email": "admin@example.com",
+    "department": {
+        "id": "dep123",
+        "name": "IT Department",
+        "description": "Handles IT-related complaints.",
+        "complaints": [
+            {
+                "id": "c1",
+                "name": "User A",
+                "mobileNumber": "9876543210",
+                "locality": "Sector 1",
+                "description": "Internet is not working.",
+                "status": "PENDING",
+                "length": "3",
+                "priority": "HIGH",
+                "attachments": []
+            },
+            {
+                "id": "c2",
+                "name": "User B",
+                "mobileNumber": "9876543211",
+                "locality": "Sector 2",
+                "description": "Computer not booting up.",
+                "status": "RESOLVED",
+                "length": "3",
+                "priority": "MEDIUM",
+                "attachments": []
+            },
+            {
+                "id": "c3",
+                "name": "User C",
+                "mobileNumber": "9876543212",
+                "locality": "Sector 3",
+                "description": "Software installation issue.",
+                "status": "PENDING",
+                "length": "3",
+                "priority": "URGENT",
+                "attachments": []
+            }
+        ]
+    }
+}

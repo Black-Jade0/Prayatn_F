@@ -119,6 +119,51 @@ router.post("/signin", async (req, res) => {
     }
 });
 
+router.put(
+    "/complaint/:id/change-department",
+    authMiddleware,
+    async (req, res) => {
+        // NEED CHECKING
+        const { id } = req.params;
+        const { newDepartmentId } = req.body;
+
+        if (!newDepartmentId) {
+            return res
+                .status(400)
+                .json({ message: "New department ID is required" });
+        }
+
+        try {
+            // Check if the new department exists
+            const newDepartment = await prisma.department.findUnique({
+                where: { id: newDepartmentId },
+            });
+
+            if (!newDepartment) {
+                return res
+                    .status(404)
+                    .json({ message: "New department not found" });
+            }
+
+            // Update the complaint's department
+            const updatedComplaint = await prisma.complaint.update({
+                where: { id },
+                data: { departmentId: newDepartmentId },
+            });
+
+            res.json({
+                message: "Complaint department updated successfully",
+                complaint: updatedComplaint,
+            });
+        } catch (err) {
+            console.error("Error updating complaint department:", err);
+            res.status(500).json({
+                message: "Failed to update complaint department",
+            });
+        }
+    }
+);
+
 router.get("/check-auth", authMiddleware, (req, res) => {
     res.status(200).json({ authenticated: true, userId: req.userId });
 });

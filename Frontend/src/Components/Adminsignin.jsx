@@ -25,7 +25,6 @@ const AdminSignin = ({ closeModal, signincomplete }) => {
             if (!response.ok) throw new Error(data.message || "Signin failed");
             data.userData && localStorage.setItem("userData", JSON.stringify(data.userData));
 
-            alert("Signin successful!");
             signincomplete();
             closeModal(); // Close modal after successful sign-in
         } catch (err) {
