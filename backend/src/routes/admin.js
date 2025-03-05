@@ -5,6 +5,20 @@ const router = express.Router();
 const JWT_PASSWORD = process.env.JWT_PASSWORD;
 const { authMiddleware } = require("../middleware");
 
+const storage = multer.memoryStorage(); // Store files in memory as Buffer objects
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    // Accept only image files
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed!"), false);
+    }
+  },
+});
+
 router.post("/departmentcreation", async (req, res) => {
     const body = req.body;
     console.log("Got the body: ", body);
@@ -182,9 +196,15 @@ router.put(
 
 //route for fetching all complaits
 
-router.post('/changeStatus/:complaintId', authMiddleware,async(req,res)=>{
+router.post('/changeStatus/:complaintId', authMiddleware,upload.array("attachments", 5), async(req,res)=>{
+    //route for changing status--needs checking ! 
     const { complaintId } = req.params;
     try{
+        const attachments = req.files ? req.files.map((file) => file.buffer) : [];
+    //pass this image to llama and confirm if the problem given user is resolved or not 
+    //if llama accepts it then add the following image to complaints attachment
+    //else return insufficent proof 
+    if(attachments){
         const updatedComplaint = await prisma.complaint.update({
             where:{
                 id:complaintId
@@ -193,13 +213,17 @@ router.post('/changeStatus/:complaintId', authMiddleware,async(req,res)=>{
             }
         });
         res.json({message:"Complaint update , ",newStatus:updatedComplaint.status})
+    }else{
+        res.status(511).json({message:"Insufficent or invalid proof is provided ! Status not changed !"});
+    }
+        
     } catch (err) {
         console.error("Error updating complaint department:", err);
         res.status(500).json({
             message: "Failed to update complaint department",
         });
     }
-})
+});
 
 router.get("/check-auth", authMiddleware, (req, res) => {
     res.status(200).json({ authenticated: true, userId: req.userId });

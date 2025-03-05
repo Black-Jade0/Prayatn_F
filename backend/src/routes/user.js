@@ -19,6 +19,35 @@ const upload = multer({
   },
 });
 
+router.get("/trackcomplaint/:id", async (req, res) => {
+  try {
+    const { id } = req.params; // Already a string
+
+    const complaint = await prisma.complaint.findUnique({
+      where: { id }, // No conversion needed
+      select: {
+        id: true,
+        name: true,
+        locality: true,
+        description: true,
+        priority: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+
+    if (!complaint) {
+      return res.status(404).json({ error: "Complaint not found." });
+    }
+
+    res.json(complaint);
+  } catch (error) {
+    console.error("Error fetching complaint:", error);
+    res.status(500).json({ error: "Failed to fetch complaint." });
+  }
+});
+
+
 const findAndHandleSimilarComplaints = async (
   matcher,
   complaintVar,
