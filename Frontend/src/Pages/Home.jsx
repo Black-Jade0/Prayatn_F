@@ -1,39 +1,52 @@
 import React, { useState } from "react";
 import AdminSignin from "../Components/Adminsignin";
-import Adminhome from "../../public/Adminhome";
+import Adminhome from "./Admin/Adminhome";
 import { useEffect } from "react";
+import ComplaintReg from "../Components/ComplaintReg";
+import axios from "axios";
+import TrackComplaint from "../Components/TrackComplaint";
 
 const Home = () => {
     const [isAdminSignin, setIsAdminSignin] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isComplaintReg, setIsComplaintReg] = useState(false);
+    const [isComplaintTrack, setIsComplaintTrack] = useState(false);
+    const [isComplaintcompleted, setIsComplaintcompleted] = useState(false);
+    const [isAdminLogout, setisAdminLogout] = useState(false);
+
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const res = await fetch(
+                const res = await axios.get(
                     "http://localhost:3000/admin/check-auth",
-                    {
-                        method: "GET",
-                        credentials: "include", // Send cookies
-                    }
+                    { withCredentials: true }
                 );
 
-                if (res.ok) {
-                    console.log("token found")
+                if (res.status === 200) {
+                    console.log("Token found");
                     setIsAuthenticated(true);
-                } else {
-                    setIsAuthenticated(false);
                 }
             } catch (error) {
-                console.error("Auth check failed:", error);
+                if (error.response && error.response.status === 403) {
+                    console.log("User not authenticated");
+                } else {
+                    console.error("Auth check failed:", error);
+                }
                 setIsAuthenticated(false);
             }
         };
 
         checkAuth();
-    });
+    }, []);
 
     if (isAuthenticated) {
-        return <Adminhome />;
+        return (
+            <Adminhome
+                logout={() => {
+                    setisAdminLogout(true);
+                }}
+            />
+        );
     }
 
     return (
@@ -45,14 +58,8 @@ const Home = () => {
                 <nav className="w-full h-[12%] py-6 px-10 flex justify-between items-center bg-opacity-80 top-0 z-50">
                     <h2 className="text-2xl font-bold">AI Complaint System</h2>
                     <div className="space-x-6">
-                        <a href="#" className=" ">
-                            Features
-                        </a>
-                        <a href="#" className=" ">
-                            Contact
-                        </a>
                         <button
-                            className="bg-[var(--boom-color)] px-6 py-2 rounded-full shadow-lg hover:bg-[var(--boom-color)] transition"
+                            className="bg-[var(--boom-color)] px-6 py-2 font-medium rounded-full shadow-lg hover:bg-[var(--boom-color)] transition hover:scale-105  "
                             onClick={() => setIsAdminSignin(true)}
                         >
                             Login as Admin
@@ -70,10 +77,24 @@ const Home = () => {
                             </span>
                         </h1>
                         <p className="mt-6 text-lg max-w-xl leading-relaxed">
-                        <b>Your Concerns, Our Priority:</b> We use AI to simplify the complaint process, ensuring your issues are heard and addressed efficiently.
+                            <b>Your Concerns, Our Priority:</b> We use AI to
+                            simplify the complaint process, ensuring your issues
+                            are heard and addressed efficiently.
                         </p>
-                        <button className="mt-8 bg-[var(--boom-color)] px-8 py-3 text-lg font-medium rounded-full shadow-lg hover:bg-[var(--boom-color)] transition hover:scale-105">
-                            Track Progress
+                        <button
+                            className="mt-8 bg-[var(--boom-color)] px-8 py-3 text-lg font-medium rounded-full shadow-lg hover:bg-[var(--boom-color)] transition hover:scale-105"
+                            onClick={() => {
+                                setIsComplaintReg(true);
+                                console.log("yo");
+                            }}
+                        >
+                            Register Complaint
+                        </button>
+                        <button
+                            className="mt-8 bg-[var(--boom-color)] px-8 py-3 text-lg font-medium rounded-full shadow-lg hover:bg-[var(--boom-color)] transition hover:scale-105"
+                            onClick={() => setIsComplaintTrack(true)}
+                        >
+                            Track Complaint
                         </button>
                     </div>
 
@@ -111,7 +132,9 @@ const Home = () => {
                                 <h2 className="text-md font-semibold text-[var(--boom-color)]">
                                     {feature.title}
                                 </h2>
-                                <p className="mt-1 text-xs feature-desc">{feature.desc}</p>
+                                <p className="mt-1 text-xs feature-desc">
+                                    {feature.desc}
+                                </p>
                             </div>
                         ))}
                     </div>
@@ -119,15 +142,35 @@ const Home = () => {
             </div>
 
             {/* Admin Sign-in Modal */}
-            {isAdminSignin && (
+            {isAdminSignin ? (
                 <div
-                    className={`${
-                        isAdminSignin ? "scale-100" : "scale-0"
-                    } transition-all ease-in duration-400 transform absolute flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50 `}
+                    className={`transition-all ease-in duration-200 transform absolute flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-70`}
                 >
-                    <AdminSignin closeModal={() => setIsAdminSignin(false)} signincomplete = {()=> setIsAuthenticated(true)}/>
+                    <AdminSignin
+                        closeModal={() => setIsAdminSignin(false)}
+                        signincomplete={() => setIsAuthenticated(true)}
+                    />
                 </div>
-            )}
+            ) : null}
+            {isComplaintReg ? (
+                <div
+                    className={`transition-all ease-in duration-200 transform absolute flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-70`}
+                >
+                    <ComplaintReg
+                        closeForm={() => setIsComplaintReg(false)}
+                        complaintcomplete={() => setIsComplaintcompleted(true)}
+                    />
+                </div>
+            ) : null}
+            {isComplaintTrack ? (
+                <div
+                    className={`transition-all ease-in duration-200 transform absolute flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-70`}
+                >
+                    <TrackComplaint
+                        closeForm={() => setIsComplaintTrack(false)}
+                    />
+                </div>
+            ) : null}
         </div>
     );
 };

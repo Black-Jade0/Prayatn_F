@@ -1,7 +1,6 @@
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./Pages/Home";
-import ComplaintReg from "./Pages/ComplaintReg";
 
 function App() {
     return (
@@ -9,7 +8,6 @@ function App() {
             <Router>
                 <Routes>
                     <Route path="/" element={<Home />}></Route>
-                    <Route path="/complaintreg" element={<ComplaintReg/>}/>
                 </Routes>
             </Router>
         </>
