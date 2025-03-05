@@ -13,17 +13,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-  model Admin {
-    id           String     @id @default(auto()) @map("_id") @db.ObjectId
-    name         String
-    email        String     @unique
-    password     String
-    department   Department @relation(fields: [departmentId], references: [id])
-    departmentId String     @db.ObjectId
-    createdAt    DateTime   @default(now())
-    updatedAt    DateTime   @updatedAt
-  }
+model Admin {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String     @unique
+  password     String
+  department   Department @relation(fields: [departmentId], references: [id])
+  departmentId String     @db.ObjectId
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
 
 model Department {
   id          String      @id @default(auto()) @map("_id") @db.ObjectId
@@ -37,18 +36,18 @@ model Department {
 
 model Complaint {
   id           String     @id @default(auto()) @map("_id") @db.ObjectId
-  name         String     // Name of person lodging the complaint
+  name         String // Name of person lodging the complaint
   mobileNumber String
   locality     String
   description  String
   status       Status     @default(PENDING)
   priority     Priority   @default(LOW)
-  attachments  Bytes[]    // Array of image data stored as bytes
+  attachments  Bytes[] // Array of image data stored as bytes
   department   Department @relation(fields: [departmentId], references: [id])
   departmentId String     @db.ObjectId
   // New field for tracking similar complaint matches
-    matchCounter   Int        @default(0)
-    category       String?    // Optional category field for easier searching
+  matchCounter Int        @default(0)
+  category     String? // Optional category field for easier searching
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }
@@ -59,6 +58,7 @@ enum Status {
   RESOLVED
   REJECTED
 }
+
 enum Priority {
   LOW
   MEDIUM

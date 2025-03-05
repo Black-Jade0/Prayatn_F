@@ -6,46 +6,10 @@ const Adminhome = ({ logout }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const dummyData = {
-            name: "Admin User",
-            department: {
-                name: "Public Works",
-                complaints: [
-                    {
-                        id: 1,
-                        locality: "Downtown",
-                        name: "Pothole Issue",
-                        description: "Large pothole near main street",
-                        priority: "HIGH",
-                        status: "PENDING",
-                    },
-                    {
-                        id: 2,
-                        locality: "Uptown",
-                        name: "Streetlight Out",
-                        description: "No streetlight working in the area",
-                        priority: "MEDIUM",
-                        status: "RESOLVED",
-                    },
-                    {
-                        id: 3,
-                        locality: "Suburb",
-                        name: "Garbage Overflow",
-                        description: "Bins overflowing for two days",
-                        priority: "URGENT",
-                        status: "PENDING",
-                    },
-                ],
-                otherDepartments: [
-                    "Water Works",
-                    "Electricity Board",
-                    "Sanitation",
-                ],
-            },
-        };
-
-        localStorage.setItem("userData", JSON.stringify(dummyData));
-        setAdmin(dummyData);
+        const storedUser = localStorage.getItem("userData");
+        if (storedUser) {
+            setAdmin(JSON.parse(storedUser));
+        }
     }, []);
 
     const handleLogout = () => {
