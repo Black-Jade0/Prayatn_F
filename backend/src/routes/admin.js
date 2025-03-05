@@ -88,47 +88,58 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/signin", async (req, res) => {
-    //Login route for authority and give information about user 
     const body = req.body;
     console.log("Got the body: ", body);
+
     if (!body.email || !body.password) {
-        console.error({ message: " credentails are missing  ", error: err });
-        res.status(511).json({ message: "Signup failed !" });
+        console.error({ message: "Credentials are missing" });
+        return res
+            .status(400)
+            .json({ message: "Signin failed! Missing credentials." });
     }
+
     try {
         const user = await prisma.admin.findFirst({
             where: {
                 email: body.email,
                 password: body.password,
             },
+            include: {
+                department: {
+                    include: {
+                        complaints: true, // Fetch complaints of the department
+                    },
+                },
+            },
         });
-        const departmentName = await prisma.department.findFirst({
-            where:{
-                id:user.departmentId
-            }
-        });
+
         if (user) {
             const token = jwt.sign({ userId: user.id }, JWT_PASSWORD);
             res.cookie("token", token);
-            res.json({ message: "signin successful !", userData: user,departmentName:departmentName });
+
+            res.json({
+                message: "Signin successful!",
+                userData: user,
+                departmentName: user.department.name,
+                complaints: user.department.complaints, // Send complaints of the department
+            });
         } else {
             console.log({ message: "User not found, check the credentials" });
-            res.status(411).json({ message: "User not found !" });
+            res.status(404).json({ message: "User not found!" });
         }
     } catch (err) {
-        console.error({
-            message: "Got the error while signing up ",
-            error: err,
-        });
-        res.status(511).json({ message: "Signup failed !" });
+        console.error({ message: "Error during signin", error: err });
+        res.status(500).json({ message: "Signin failed!" });
     }
 });
+
 
 router.put(
     "/complaint/:id/change-department",
     authMiddleware,
     async (req, res) => {
         // NEED CHECKING
+        console.log("here")
         const { id } = req.params;
         const { newDepartmentId } = req.body;
 
