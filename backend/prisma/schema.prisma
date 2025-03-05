@@ -46,6 +46,9 @@ model Complaint {
   attachments  Bytes[]    // Array of image data stored as bytes
   department   Department @relation(fields: [departmentId], references: [id])
   departmentId String     @db.ObjectId
+  // New field for tracking similar complaint matches
+    matchCounter   Int        @default(0)
+    category       String?    // Optional category field for easier searching
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }

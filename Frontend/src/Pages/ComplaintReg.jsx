@@ -28,7 +28,7 @@ const ComplaintReg = ()=>{
       const handleSubmit = async (e) => {
         e.preventDefault();
         // Form submission logic would go here
-        const res = await axios.post('http://localhost:3000/user/complaintreg')
+        const res = await axios.post('http://localhost:3000/user/complaintreg',formData)
         console.log('Form Data:', formData);
       };
     

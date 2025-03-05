@@ -1,77 +1,112 @@
 const axios = require('axios');
+const ComplaintProcessor = require('./complaintProcessor'); // Path to the previous script
 
-async function processComplaint(description) {
-  try {
-    // Send the request to the API
-    const response = await axios.post("http://localhost:11434/api/generate", {
-      model: "llama3.2",
-      prompt: `You are a complaint-processing assistant. Your task is to rewrite user complaints into a standardized and structured format while preserving the key issue and location details.
-
-Rules:
-1. Keep it concise and structured.
-2. Use neutral and formal wording.
-3. Ensure consistency in phrasing.
-4. Do not add, remove, or infer extra information.
-
-Complaint: "${description}"
-
-Output only the standardized complaint description without any additional text or formatting`
-    });
-
-    // Log the response to inspect its structure
-    console.log("Response Data:", response);
-
-    // Check if the response data is an array
-    if (Array.isArray(response.data)) {
-      // Initialize an array to collect all parts of the response
-      let structuredComplaint = [];
-
-      // Loop through the result and extract the 'response' field
-      response.data.forEach(item => {
-        if (item.response) {
-          structuredComplaint.push(item.response);
-        }
-      });
-
-      // Join all the parts of the complaint into one single string
-      let fullComplaint = structuredComplaint.join(' ').trim();
-
-      // Check if the last item is marked as 'done' and contains the full response
-      const isCompleted = response.data[response.data.length - 1]?.done === true;
-
-      // If completed, return the structured response; otherwise, show a message
-      if (isCompleted) {
-        return {
-          model: response.data[0]?.model,
-          created_at: response.data[0]?.created_at,
-          structured_complaint: fullComplaint,
-          done: true,
-          done_reason: "stop"
-        };
-      } else {
-        return {
-          model: response.data[0]?.model,
-          created_at: response.data[0]?.created_at,
-          structured_complaint: "Complaint is still being processed.",
-          done: false,
-          done_reason: "incomplete"
-        };
-      }
-    } else {
-      // Handle cases where the response is not an array
-      console.error("Response is not an array. Actual response:", response.data);
-      return null;
+class ComplaintService {
+    constructor() {
+        this.processor = new ComplaintProcessor();
     }
 
-  } catch (error) {
-    console.error("Error processing complaint:", error);
-    return null;
-  }
+    /**
+     * Process complaint and match against database
+     * @param {string} description - Original complaint description
+     * @returns {Promise<Object>} Processed complaint result
+     */
+    async handleComplaint(description) {
+        try {
+            // Step 1: Standardize complaint description
+            const processedComplaint = await this.processor.processComplaint(description);
+            
+            // Step 2: Parse the processed complaint
+            const complaintDetails = this.parseProcessedComplaint(processedComplaint);
+            
+            // Step 3: Search database for matching complaints
+            const matchingComplaints = await this.searchDatabaseForComplaints(complaintDetails);
+            
+            // Step 4: Perform actions based on matches
+            const actionResult = this.determineActions(matchingComplaints, complaintDetails);
+            
+            return {
+                originalDescription: description,
+                processedComplaint: complaintDetails,
+                matchingComplaints: matchingComplaints,
+                actions: actionResult
+            };
+        } catch (error) {
+            console.error('Complaint handling failed:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Parse processed complaint into structured object
+     * @param {string} processedComplaint - Standardized complaint text
+     * @returns {Object} Structured complaint details
+     */
+    parseProcessedComplaint(processedComplaint) {
+        const sections = processedComplaint.split('\n');
+        const details = {};
+
+        sections.forEach(section => {
+            const [key, value] = section.split(': ');
+            if (key && value) {
+                details[key.toLowerCase()] = value.trim();
+            }
+        });
+
+        return details;
+    }
+
+    /**
+     * Search database for matching complaints (mock implementation)
+     * @param {Object} complaintDetails - Structured complaint details
+     * @returns {Promise<Array>} Matching complaints
+     */
+    async searchDatabaseForComplaints(complaintDetails) {
+        // TODO: Implement actual database search logic
+        // This is a placeholder - replace with your actual database query
+        return [];
+    }
+
+    /**
+     * Determine actions based on matching complaints
+     * @param {Array} matchingComplaints - List of matching complaints
+     * @param {Object} complaintDetails - Current complaint details
+     * @returns {Object} Recommended actions
+     */
+    determineActions(matchingComplaints, complaintDetails) {
+        // TODO: Implement action determination logic
+        if (matchingComplaints.length > 0) {
+            return { 
+                status: 'DUPLICATE', 
+                message: 'Similar complaints found',
+                priority: complaintDetails.priority
+            };
+        }
+
+        return { 
+            status: 'NEW', 
+            message: 'New complaint to be processed',
+            priority: complaintDetails.priority
+        };
+    }
 }
 
 // Example usage
-const description = "There is a large pothole in the middle of the road near the park, causing a traffic hazard.";
+async function main() {
+    const service = new ComplaintService();
+    
+    try {
+        const complaint = "There is a large pothole in the middle of the road near the park, causing a traffic hazard";
+        const result = await service.handleComplaint(complaint);
+        
+        console.log('Complaint Processing Result:');
+        console.log(JSON.stringify(result, null, 2));
+    } catch (error) {
+        console.error('Error processing complaint:', error);
+    }
+}
 
-processComplaint(description).then(result => {
-  console.log("Processed complaint:", result);
-});
+// Uncomment to run
+// main();
+
+module.exports = ComplaintService;
