@@ -71,9 +71,9 @@ const Home = () => {
                 <div className="w-full h-[88%] flex items-center justify-between">
                     <div className="flex flex-col justify-center items-start h-full w-1/2 box-border px-10">
                         <h1 className="text-6xl font-extrabold tracking-tight leading-tight">
-                            Designed{" "}
+                        Resolve <span className="italic text-[var(--boom-color)]">Complaints</span> Seamlessly with {" "}
                             <span className="italic text-[var(--boom-color)]">
-                                to Solve
+                            SOLO
                             </span>
                         </h1>
                         <p className="mt-6 text-lg max-w-xl leading-relaxed">

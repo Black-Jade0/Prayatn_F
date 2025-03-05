@@ -102,10 +102,15 @@ router.post("/signin", async (req, res) => {
                 password: body.password,
             },
         });
+        const departmentName = await prisma.department.findFirst({
+            where:{
+                id:user.departmentId
+            }
+        });
         if (user) {
             const token = jwt.sign({ userId: user.id }, JWT_PASSWORD);
             res.cookie("token", token);
-            res.json({ message: "signin successful !", userData: user });
+            res.json({ message: "signin successful !", userData: user,departmentName:departmentName });
         } else {
             console.log({ message: "User not found, check the credentials" });
             res.status(411).json({ message: "User not found !" });
