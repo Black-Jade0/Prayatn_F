@@ -70,30 +70,108 @@ class ComplaintMatcher {
      * @returns {Array} Matched complaints
      */
     performFuzzyMatching(localComplaints, processedComplaint) {
-        // Combine description and keywords for comprehensive matching
-        const searchString = `${processedComplaint.description} ${processedComplaint.keywords}`;
+        // Enhanced search string creation
+        const searchString = this.createComprehensiveSearchString(processedComplaint);
 
-        // Fuse.js configuration for fuzzy matching
+        // More sophisticated Fuse.js configuration
         const fuseOptions = {
             includeScore: true,
-            threshold: 0.4, // Adjust threshold for desired matching sensitivity
-            keys: ['description']
+            shouldSort: true,
+            findAllMatches: true,
+            threshold: 0.4,
+            location: 0,
+            distance: 100,
+            minMatchCharLength: 3,
+            keys: [
+                { name: 'description', weight: 0.7 },
+                { name: 'category', weight: 0.3 }
+            ]
         };
 
-        // Prepare complaints for fuzzy search
+        // Create Fuse instance
         const fuse = new Fuse(localComplaints, fuseOptions);
         
         // Perform fuzzy search
         const matches = fuse.search(searchString);
 
-        // Filter and sort matches
+        // Enhanced filtering and scoring
         return matches
-            .filter(match => match.score <= 0.4) // Only keep strong matches
-            .sort((a, b) => a.score - b.score) // Sort by match strength
+            .filter(match => {
+                // More rigorous match criteria
+                const isStrongMatch = match.score <= 0.4;
+                const hasSignificantOverlap = this.calculateMatchOverlap(
+                    processedComplaint.description, 
+                    match.item.description
+                );
+                
+                return isStrongMatch && hasSignificantOverlap;
+            })
+            .sort((a, b) => a.score - b.score)
             .map(match => ({
                 ...match.item,
                 matchScore: match.score
             }));
+    }
+
+    /**
+     * Create a comprehensive search string
+     * @param {Object} processedComplaint - Processed complaint object
+     * @returns {string} Comprehensive search string
+     */
+    createComprehensiveSearchString(processedComplaint) {
+        // Combine multiple fields for more comprehensive matching
+        const searchParts = [
+            processedComplaint.description || '',
+            processedComplaint.keywords || '',
+            processedComplaint.category || ''
+        ];
+
+        return searchParts
+            .filter(part => part.trim() !== '')
+            .join(' ');
+    }
+
+    /**
+     * Calculate text overlap percentage
+     * @param {string} originalText - Original complaint description
+     * @param {string} matchedText - Matched complaint description
+     * @returns {number} Overlap percentage
+     */
+    calculateMatchOverlap(originalText, matchedText) {
+        // Tokenize and clean texts
+        const originalTokens = this.tokenize(originalText);
+        const matchedTokens = this.tokenize(matchedText);
+
+        // Calculate unique tokens
+        const uniqueOriginalTokens = new Set(originalTokens);
+        const uniqueMatchedTokens = new Set(matchedTokens);
+
+        // Calculate overlapping tokens
+        const overlappingTokens = originalTokens.filter(token => 
+            uniqueMatchedTokens.has(token)
+        );
+
+        // Calculate overlap percentage
+        const overlapPercentage = 
+            (overlappingTokens.length / uniqueOriginalTokens.size) * 100;
+
+        return overlapPercentage >= 40; // At least 40% token overlap
+    }
+
+    /**
+     * Tokenize text into meaningful tokens
+     * @param {string} text - Input text
+     * @returns {string[]} Tokens
+     */
+    tokenize(text) {
+        return text
+            .toLowerCase()
+            .replace(/[^\w\s]/g, '') // Remove punctuation
+            .split(/\s+/) // Split on whitespace
+            .filter(token => token.length > 2) // Remove short tokens
+            .filter((token, index, self) => 
+                self.indexOf(token) === index // Remove duplicates
+            );
     }
 
     /**
