@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import ChangeStatus from "../../Components/ChangeStatus";
 
 const Adminhome = ({ logout }) => {
     const [admin, setAdmin] = useState(null);
     const [departmentName, setDepartmentName] = useState(null);
     const [complaints, setComplaints] = useState([]);
+    const [selectedComplaint, setSelectedComplaint] = useState(null); // For modal
 
     useEffect(() => {
         const storedUser = localStorage.getItem("userData");
@@ -43,14 +45,11 @@ const Adminhome = ({ logout }) => {
                 `http://localhost:3000/admin/complaint/${complaintId}/change-department`,
                 { newDepartmentId },
                 {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    withCredentials: true, // This sends cookies automatically
+                    headers: { "Content-Type": "application/json" },
+                    withCredentials: true,
                 }
             );
 
-            // Remove the complaint from local storage
             const updatedComplaints = complaints.filter(
                 (complaint) => complaint.id !== complaintId
             );
@@ -58,8 +57,6 @@ const Adminhome = ({ logout }) => {
                 "complaints",
                 JSON.stringify(updatedComplaints)
             );
-
-            // Update the state
             setComplaints(updatedComplaints);
         } catch (error) {
             console.error(
@@ -70,6 +67,19 @@ const Adminhome = ({ logout }) => {
                 error.response?.data?.message || "Failed to update department."
             );
         }
+    };
+
+    const handleOpenModal = (complaint) => setSelectedComplaint(complaint);
+    const handleCloseModal = () => setSelectedComplaint(null);
+
+    const updateComplaintStatus = (id, newStatus) => {
+        setComplaints((prevComplaints) =>
+            prevComplaints.map((complaint) =>
+                complaint.id === id
+                    ? { ...complaint, status: newStatus }
+                    : complaint
+            )
+        );
     };
 
     if (!admin) {
@@ -96,7 +106,6 @@ const Adminhome = ({ logout }) => {
                 Department: {departmentName}
             </p>
 
-            {/* Complaints Table */}
             <div
                 className="mt-8 shadow-md rounded-xl overflow-hidden"
                 style={{ backgroundColor: "#C3ACD0" }}
@@ -123,6 +132,7 @@ const Adminhome = ({ logout }) => {
                                 <th className="p-4">Priority</th>
                                 <th className="p-4">Status</th>
                                 <th className="p-4">Change Department</th>
+                                <th className="p-4">Update Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -213,13 +223,23 @@ const Adminhome = ({ logout }) => {
                                                     ))}
                                             </select>
                                         </td>
+                                        <td className="p-4">
+                                            <button
+                                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                                onClick={() =>
+                                                    handleOpenModal(complaint)
+                                                }
+                                            >
+                                                Change Status
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
                                     <td
                                         className="p-4 text-gray-500 text-center"
-                                        colSpan="6"
+                                        colSpan="7"
                                     >
                                         No complaints available
                                     </td>
@@ -227,8 +247,16 @@ const Adminhome = ({ logout }) => {
                             )}
                         </tbody>
                     </table>
-                </div>{" "}
+                </div>
             </div>
+
+            {selectedComplaint && (
+                <ChangeStatus
+                    complaint={selectedComplaint}
+                    closeModal={handleCloseModal}
+                    updateComplaintStatus={updateComplaintStatus}
+                />
+            )}
         </div>
     );
 };

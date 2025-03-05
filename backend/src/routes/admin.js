@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const JWT_PASSWORD = process.env.JWT_PASSWORD;
 const { authMiddleware } = require("../middleware");
+const multer = require("multer");
+const upload = multer();    
 
 router.post("/departmentcreation", async (req, res) => {
     const body = req.body;
@@ -182,24 +184,47 @@ router.put(
 
 //route for fetching all complaits
 
-router.post('/changeStatus/:complaintId', authMiddleware,async(req,res)=>{
-    const { complaintId } = req.params;
-    try{
-        const updatedComplaint = await prisma.complaint.update({
-            where:{
-                id:complaintId
-            }, set:{
-                status: req.body.status
+router.post(
+    "/changeStatus/:complaintId",
+    authMiddleware,
+    upload.array("attachments", 5),
+    async (req, res) => {
+        //route for changing status--needs checking !
+        const { complaintId } = req.params;
+        try {
+            const attachments = req.files
+                ? req.files.map((file) => file.buffer)
+                : [];
+            //pass this image to llama and confirm if the problem given user is resolved or not
+            //if llama accepts it then add the following image to complaints attachment
+            //else return insufficent proof
+            if (attachments) {
+                const updatedComplaint = await prisma.complaint.update({
+                    where: {
+                        id: complaintId,
+                    },
+                    data: {
+                        status: req.body.status,
+                    },
+                });
+                res.json({
+                    message: "Complaint update , ",
+                    newStatus: updatedComplaint.status,
+                });
+            } else {
+                res.status(511).json({
+                    message:
+                        "Insufficent or invalid proof is provided ! Status not changed !",
+                });
             }
-        });
-        res.json({message:"Complaint update , ",newStatus:updatedComplaint.status})
-    } catch (err) {
-        console.error("Error updating complaint department:", err);
-        res.status(500).json({
-            message: "Failed to update complaint department",
-        });
+        } catch (err) {
+            console.error("Error updating complaint department:", err);
+            res.status(500).json({
+                message: "Failed to update complaint department",
+            });
+        }
     }
-})
+);
 
 router.get("/check-auth", authMiddleware, (req, res) => {
     res.status(200).json({ authenticated: true, userId: req.userId });
