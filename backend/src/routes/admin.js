@@ -5,7 +5,6 @@ const router = express.Router();
 const JWT_PASSWORD = process.env.JWT_PASSWORD;
 const { authMiddleware } = require("../middleware");
 const multer = require("multer");
-const upload = multer();    
 
 const storage = multer.memoryStorage(); // Store files in memory as Buffer objects
 const upload = multer({
