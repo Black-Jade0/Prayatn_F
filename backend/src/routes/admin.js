@@ -169,6 +169,27 @@ router.put(
     }
 );
 
+//route for fetching all complaits
+
+router.post('/changeStatus/:complaintId', authMiddleware,async(req,res)=>{
+    const { complaintId } = req.params;
+    try{
+        const updatedComplaint = await prisma.complaint.update({
+            where:{
+                id:complaintId
+            }, set:{
+                status: req.body.status
+            }
+        });
+        res.json({message:"Complaint update , ",newStatus:updatedComplaint.status})
+    } catch (err) {
+        console.error("Error updating complaint department:", err);
+        res.status(500).json({
+            message: "Failed to update complaint department",
+        });
+    }
+})
+
 router.get("/check-auth", authMiddleware, (req, res) => {
     res.status(200).json({ authenticated: true, userId: req.userId });
 });
