@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import ChangeStatus from "../../Components/ChangeStatus";
+import { useNavigate } from "react-router-dom";
+import ChangeStatus from "../../Components/ChangeStatuscomp";
 
 const Adminhome = ({ logout }) => {
     const [admin, setAdmin] = useState(null);
     const [departmentName, setDepartmentName] = useState(null);
     const [complaints, setComplaints] = useState([]);
     const [selectedComplaint, setSelectedComplaint] = useState(null); // For modal
-
+    const navigate = useNavigate();
     useEffect(() => {
         const storedUser = localStorage.getItem("userData");
         if (storedUser) setAdmin(JSON.parse(storedUser));
@@ -69,7 +70,10 @@ const Adminhome = ({ logout }) => {
         }
     };
 
-    const handleOpenModal = (complaint) => setSelectedComplaint(complaint);
+    // const handleOpenModal = (complaint) => setSelectedComplaint(complaint);
+    const handleOpenModal = (complaint) =>
+        navigate("/ChangeStatus", { state: { complaint } });
+
     const handleCloseModal = () => setSelectedComplaint(null);
 
     const updateComplaintStatus = (id, newStatus) => {

@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const ChangeStatus = ({ complaint, closeModal, updateComplaintStatus }) => {
+const CHangeStatuscomp = ({ complaint, closeModal, updateComplaintStatus }) => {
     const [selectedStatus, setSelectedStatus] = useState(complaint.status);
     const [image, setImage] = useState(null);
+    const navigate = useNavigate();
 
     const handleStatusChange = async () => {
         if (!image || image.length === 0)
@@ -30,6 +32,7 @@ const ChangeStatus = ({ complaint, closeModal, updateComplaintStatus }) => {
             updateComplaintStatus(complaint.id, selectedStatus);
             alert("Status updated successfully!");
             closeModal();
+            navigate("/");
         } catch (error) {
             console.error(
                 "Error updating status:",
@@ -97,4 +100,4 @@ const ChangeStatus = ({ complaint, closeModal, updateComplaintStatus }) => {
     );
 };
 
-export default ChangeStatus;
+export default CHangeStatuscomp;
