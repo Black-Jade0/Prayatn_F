@@ -1,5 +1,5 @@
 const express = require("express");
-const axios = require("axios");
+
 const router = express.Router();
 const prisma = require("../prisma");
 const multer = require("multer");
