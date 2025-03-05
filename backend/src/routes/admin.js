@@ -239,6 +239,44 @@ router.post(
     }
 );
 
+// Add this route to your admin router file
+router.get("/complaints/locality/:locality", authMiddleware, async (req, res) => {
+    const { locality } = req.params;
+    
+    try {
+        const complaints = await prisma.complaint.findMany({
+            where: {
+                locality: locality
+            },
+            include: {
+                department: {
+                    select: {
+                        name: true
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+        
+        if (complaints.length === 0) {
+            return res.status(200).json({ 
+                message: "No complaints found for this locality", 
+                complaints: [] 
+            });
+        }
+        
+        res.json({ 
+            message: "Complaints retrieved successfully", 
+            complaints: complaints 
+        });
+    } catch (err) {
+        console.error("Error fetching complaints by locality:", err);
+        res.status(500).json({ message: "Failed to retrieve complaints" });
+    }
+});
+
 router.get("/check-auth", authMiddleware, (req, res) => {
     res.status(200).json({ authenticated: true, userId: req.userId });
 });

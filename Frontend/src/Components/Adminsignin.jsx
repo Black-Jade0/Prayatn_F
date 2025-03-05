@@ -26,10 +26,7 @@ const AdminSignin = ({ closeModal, signincomplete }) => {
             data.userData &&
                 localStorage.setItem("userData", JSON.stringify(data.userData));
             data.departmentName &&
-                localStorage.setItem(
-                    "departmentName",
-                    data.departmentName
-                );
+                localStorage.setItem("departmentName", data.departmentName);
             data.complaints &&
                 localStorage.setItem(
                     "complaints",
@@ -46,20 +43,21 @@ const AdminSignin = ({ closeModal, signincomplete }) => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center w-full h-full z-20">
-            <div className="bg-white p-6 rounded-lg shadow-md w-80 relative">
+        <div className="flex items-center justify-center w-full h-full z-20 backdrop-blur-sm bg-black/30">
+            <div className="bg-white p-8 rounded-xl shadow-lg w-96 relative border border-gray-200 animate-fadeIn">
                 {/* Close Button */}
                 <button
                     onClick={closeModal}
-                    className="absolute top-2 right-2 text-gray-900"
+                    className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+                    aria-label="Close"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
-                        strokeWidth={2}
+                        strokeWidth={1.5}
                         stroke="currentColor"
-                        className="w-6 h-6"
+                        className="w-5 h-5"
                     >
                         <path
                             strokeLinecap="round"
@@ -69,33 +67,92 @@ const AdminSignin = ({ closeModal, signincomplete }) => {
                     </svg>
                 </button>
 
-                <h2 className="text-xl font-semibold text-center mb-4">
-                    Admin Sign In
-                </h2>
-                {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-                <form onSubmit={handleSignin} className="flex flex-col gap-4">
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        className="p-2 border rounded"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        className="p-2 border rounded"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
+                <div className="mb-6 text-center">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-1">
+                        Admin Portal
+                    </h2>
+                    <p className="text-gray-500 text-sm">
+                        Please sign in to continue
+                    </p>
+                </div>
+
+                {error && (
+                    <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">
+                        <p className="text-red-700 text-sm font-medium">
+                            {error}
+                        </p>
+                    </div>
+                )}
+
+                <form onSubmit={handleSignin} className="flex flex-col gap-5">
+                    <div className="space-y-2">
+                        <label
+                            htmlFor="email"
+                            className="text-sm font-medium text-gray-700"
+                        >
+                            Email Address
+                        </label>
+                        <input
+                            id="email"
+                            type="email"
+                            placeholder="your@email.com"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label
+                            htmlFor="password"
+                            className="text-sm font-medium text-gray-700"
+                        >
+                            Password
+                        </label>
+                        <input
+                            id="password"
+                            type="password"
+                            placeholder="••••••••"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+
                     <button
                         type="submit"
-                        className="bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
+                        className="mt-2 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-300 shadow-sm flex items-center justify-center"
                         disabled={loading}
                     >
-                        {loading ? "Signing in..." : "Sign In"}
+                        {loading ? (
+                            <>
+                                <svg
+                                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle
+                                        className="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    ></path>
+                                </svg>
+                                Signing in...
+                            </>
+                        ) : (
+                            "Sign In"
+                        )}
                     </button>
                 </form>
             </div>
