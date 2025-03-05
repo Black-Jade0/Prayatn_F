@@ -1,23 +1,75 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Adminhome = ({ logout }) => {
     const [admin, setAdmin] = useState(null);
-    const navigate = useNavigate();
+    const [departmentName, setDepartmentName] = useState(null);
+    const [complaints, setComplaints] = useState([]);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("userData");
-        if (storedUser) {
-            setAdmin(JSON.parse(storedUser));
-        }
+        if (storedUser) setAdmin(JSON.parse(storedUser));
+
+        const storedDept = localStorage.getItem("departmentName");
+        if (storedDept) setDepartmentName(storedDept);
+
+        const storedComplaints = localStorage.getItem("complaints");
+        if (storedComplaints) setComplaints(JSON.parse(storedComplaints));
     }, []);
 
     const handleLogout = () => {
         document.cookie =
             "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         localStorage.removeItem("userData");
+        localStorage.removeItem("departmentName");
+        localStorage.removeItem("complaints");
         window.location.reload();
         logout();
+    };
+
+    const departments = [
+        { name: "Municipality", id: "67c57c828c1109be6afbd1ab" },
+        { name: "Water Department", id: "67c57c9d8c1109be6afbd1ac" },
+        { name: "Electricity Department", id: "67c57cac8c1109be6afbd1ad" },
+        {
+            name: "Public Works Department (PWD)",
+            id: "67c57cb88c1109be6afbd1ae",
+        },
+    ];
+
+    const changeDepartment = async (complaintId, newDepartmentId) => {
+        try {
+            const response = await axios.put(
+                `http://localhost:3000/admin/complaint/${complaintId}/change-department`,
+                { newDepartmentId },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    withCredentials: true, // This sends cookies automatically
+                }
+            );
+
+            // Remove the complaint from local storage
+            const updatedComplaints = complaints.filter(
+                (complaint) => complaint.id !== complaintId
+            );
+            localStorage.setItem(
+                "complaints",
+                JSON.stringify(updatedComplaints)
+            );
+
+            // Update the state
+            setComplaints(updatedComplaints);
+        } catch (error) {
+            console.error(
+                "Error updating department:",
+                error.response?.data || error.message
+            );
+            alert(
+                error.response?.data?.message || "Failed to update department."
+            );
+        }
     };
 
     if (!admin) {
@@ -25,15 +77,6 @@ const Adminhome = ({ logout }) => {
             <div className="p-6 text-gray-500 text-center">Loading data...</div>
         );
     }
-
-    const { department } = admin;
-    const totalComplaints = department?.complaints?.length || 0;
-    const resolvedComplaints =
-        department?.complaints?.filter((c) => c.status === "RESOLVED").length ||
-        0;
-    const pendingComplaints =
-        department?.complaints?.filter((c) => c.status === "PENDING").length ||
-        0;
 
     return (
         <div
@@ -50,43 +93,8 @@ const Adminhome = ({ logout }) => {
                 Welcome, {admin.name}
             </h1>
             <p className="text-lg" style={{ color: "#55356E" }}>
-                Department: {department?.name || "N/A"}
+                Department: {departmentName}
             </p>
-
-            {/* Dashboard Stats */}
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                    {
-                        title: "Total Complaints",
-                        count: totalComplaints,
-                        color: "#C3ACD0",
-                    },
-                    {
-                        title: "Resolved Complaints",
-                        count: resolvedComplaints,
-                        color: "#55356E",
-                        textColor: "#F7EFE5",
-                    },
-                    {
-                        title: "Pending Complaints",
-                        count: pendingComplaints,
-                        color: "#F7EFE5",
-                        textColor: "#55356E",
-                    },
-                ].map((item, index) => (
-                    <div
-                        key={index}
-                        className="p-6 shadow-md rounded-xl text-center"
-                        style={{
-                            backgroundColor: item.color,
-                            color: item.textColor || "#55356E",
-                        }}
-                    >
-                        <h2 className="text-lg font-semibold">{item.title}</h2>
-                        <p className="text-3xl font-bold">{item.count}</p>
-                    </div>
-                ))}
-            </div>
 
             {/* Complaints Table */}
             <div
@@ -114,12 +122,12 @@ const Adminhome = ({ logout }) => {
                                 <th className="p-4">Complaint</th>
                                 <th className="p-4">Priority</th>
                                 <th className="p-4">Status</th>
-                                <th className="p-4">Reassign</th>
+                                <th className="p-4">Change Department</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {department?.complaints?.length > 0 ? (
-                                department.complaints.map((complaint) => (
+                            {complaints.length > 0 ? (
+                                complaints.map((complaint) => (
                                     <tr
                                         key={complaint.id}
                                         className="border-b hover:bg-gray-100"
@@ -177,25 +185,32 @@ const Adminhome = ({ logout }) => {
                                         </td>
                                         <td className="p-4">
                                             <select
-                                                className="p-2 border rounded-lg"
-                                                style={{
-                                                    backgroundColor: "#C3ACD0",
-                                                    color: "#55356E",
-                                                }}
-                                            >
-                                                <option value="">
-                                                    Reassign
-                                                </option>
-                                                {department?.otherDepartments?.map(
-                                                    (dept, i) => (
-                                                        <option
-                                                            key={i}
-                                                            value={dept}
-                                                        >
-                                                            {dept}
-                                                        </option>
+                                                className="border p-2 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                defaultValue=""
+                                                onChange={(e) =>
+                                                    changeDepartment(
+                                                        complaint.id,
+                                                        e.target.value
                                                     )
-                                                )}
+                                                }
+                                            >
+                                                <option value="" disabled>
+                                                    Select Department
+                                                </option>
+                                                {departments
+                                                    .filter(
+                                                        (dept) =>
+                                                            dept.name !==
+                                                            departmentName
+                                                    )
+                                                    .map((dept) => (
+                                                        <option
+                                                            key={dept.id}
+                                                            value={dept.id}
+                                                        >
+                                                            {dept.name}
+                                                        </option>
+                                                    ))}
                                             </select>
                                         </td>
                                     </tr>
@@ -212,7 +227,7 @@ const Adminhome = ({ logout }) => {
                             )}
                         </tbody>
                     </table>
-                </div>
+                </div>{" "}
             </div>
         </div>
     );

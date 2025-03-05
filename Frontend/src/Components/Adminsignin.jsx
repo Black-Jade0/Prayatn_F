@@ -23,7 +23,18 @@ const AdminSignin = ({ closeModal, signincomplete }) => {
 
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Signin failed");
-            data.userData && localStorage.setItem("userData", JSON.stringify(data.userData));
+            data.userData &&
+                localStorage.setItem("userData", JSON.stringify(data.userData));
+            data.departmentName &&
+                localStorage.setItem(
+                    "departmentName",
+                    data.departmentName
+                );
+            data.complaints &&
+                localStorage.setItem(
+                    "complaints",
+                    JSON.stringify(data.complaints)
+                );
 
             signincomplete();
             closeModal(); // Close modal after successful sign-in
