@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 
 const ComplaintReg = ({ closeForm }) => {
     const [formData, setFormData] = useState({
@@ -22,24 +23,50 @@ const ComplaintReg = ({ closeForm }) => {
         setFormData((prev) => ({ ...prev, attachment: e.target.files[0] }));
     };
 
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     setLoading(true);
+    //     try {
+    //         // Simulating API call for demonstration
+    //         await new Promise((resolve) => setTimeout(resolve, 1000));
+    //         // Mock response with a random complaint ID
+    //         const mockComplaintId =
+    //             "CMP" + Math.floor(100000 + Math.random() * 900000);
+    //         setSuccessMessage("Complaint registered successfully!");
+    //         setComplaintId(mockComplaintId);
+    //     } catch (error) {
+    //         console.error("Error submitting complaint:", error);
+    //     } finally {
+    //         setLoading(false);
+    //         setTimeout(() => setSuccessMessage(""), 3000);
+    //     }
+    // };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
-            // Simulating API call for demonstration
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            // Mock response with a random complaint ID
-            const mockComplaintId =
-                "CMP" + Math.floor(100000 + Math.random() * 900000);
-            setSuccessMessage("Complaint registered successfully!");
-            setComplaintId(mockComplaintId);
+          const response = await axios.post(
+            "http://localhost:3000/user/complaintreg",
+            formData
+          );
+          setSuccessMessage(response.data.message);
+          setComplaintId(response.data.complaintId);
         } catch (error) {
-            console.error("Error submitting complaint:", error);
+          console.error("Error submitting complaint:", error);
         } finally {
-            setLoading(false);
-            setTimeout(() => setSuccessMessage(""), 3000);
+          setLoading(false);
+          setTimeout(() => setSuccessMessage(""), 2500);
+          setFormData({
+            name: "",
+            mobileNumber: "",
+            locality: "",
+            description: "",
+            department: "",
+            attachment: null,
+          });
         }
-    };
+      };
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(complaintId);

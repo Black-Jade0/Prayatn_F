@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 
 const TrackComplaint = ({ closeForm }) => {
     const [complaintId, setComplaintId] = useState("");
@@ -6,44 +7,68 @@ const TrackComplaint = ({ closeForm }) => {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+    // const handleTrack = async () => {
+    //     if (!complaintId.trim()) {
+    //         setError("Please enter a valid Complaint ID.");
+    //         return;
+    //     }
+
+    //     setLoading(true);
+    //     setError("");
+    //     setComplaint(null);
+
+    //     try {
+    //         // Simulating API call for demonstration
+    //         await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    //         // Mock data for demonstration
+    //         if (complaintId.startsWith("CMP")) {
+    //             setComplaint({
+    //                 name: "John Doe",
+    //                 description:
+    //                     "Water leakage from main pipeline causing road damage",
+    //                 locality: "Green Park, Block C",
+    //                 priority: "High",
+    //                 department: "Water Department",
+    //                 status: Math.random() > 0.5 ? "RESOLVED" : "PENDING",
+    //                 dateSubmitted: "2025-02-28",
+    //                 complaintId: complaintId,
+    //             });
+    //         } else {
+    //             throw new Error("Invalid complaint ID");
+    //         }
+    //     } catch (err) {
+    //         setError(
+    //             "Complaint not found. Please verify the ID and try again."
+    //         );
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
     const handleTrack = async () => {
         if (!complaintId.trim()) {
-            setError("Please enter a valid Complaint ID.");
-            return;
+          setError("Please enter a valid Complaint ID.");
+          return;
         }
-
+    
         setLoading(true);
         setError("");
         setComplaint(null);
-
+    
         try {
-            // Simulating API call for demonstration
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-
-            // Mock data for demonstration
-            if (complaintId.startsWith("CMP")) {
-                setComplaint({
-                    name: "John Doe",
-                    description:
-                        "Water leakage from main pipeline causing road damage",
-                    locality: "Green Park, Block C",
-                    priority: "High",
-                    department: "Water Department",
-                    status: Math.random() > 0.5 ? "RESOLVED" : "PENDING",
-                    dateSubmitted: "2025-02-28",
-                    complaintId: complaintId,
-                });
-            } else {
-                throw new Error("Invalid complaint ID");
-            }
+          const response = await axios.get(
+            `http://localhost:3000/user/trackcomplaint/${complaintId}`
+          );
+          setComplaint(response.data);
         } catch (err) {
-            setError(
-                "Complaint not found. Please verify the ID and try again."
-            );
+          setError(
+            err.response?.data?.error || "Error fetching complaint details."
+          );
         } finally {
-            setLoading(false);
-        }
-    };
+          setLoading(false);
+        }
+      };
 
     const getStatusColor = (status) => {
         switch (status) {

@@ -15,7 +15,7 @@ class ComplaintMatcher {
      * @param {number} [threshold=0.5] - Similarity threshold
      * @returns {Promise<boolean>} Whether texts are similar
      */
-  async checkSimilarity(text1, text2, threshold = 0.5) {
+  async checkSimilarity(text1, text2, threshold = 0.4) {
     try {
         // Clean and preprocess texts
         const cleanText1 = this.cleanText(text1);
@@ -40,14 +40,13 @@ class ComplaintMatcher {
      * @param {string} userLocality - Locality of the complaint
      * @returns {Promise<Array>} Matching complaint IDs
      */
-  async findSimilarComplaints(processedComplaint, userLocality) {
+  async findSimilarComplaints(processedComplaint, userLocality,departmentId) {
     try {
         // Step 1: Fetch complaints in the same locality with specific conditions
-        const localComplaints = await this.fetchLocalComplaints(userLocality, processedComplaint.category);
-
+        const localComplaints = await this.fetchLocalComplaints(userLocality, departmentId);
+        console.log("localComplaints: ",localComplaints);
         // Step 2: Perform semantic matching
         const matchedComplaints = [];
-
         // Check similarity for each local complaint
         for (const complaint of localComplaints) {
             const isSimilar = await this.checkSimilarity(
@@ -59,7 +58,7 @@ class ComplaintMatcher {
                 matchedComplaints.push(complaint);
             }
         }
-
+        console.log("MatchedComplaints: ",matchedComplaints)
         // Step 3: Update match counters if matches found
         if (matchedComplaints.length > 0) {
             const updatedComplaints = await this.updateMatchCounters(matchedComplaints);
@@ -78,16 +77,14 @@ class ComplaintMatcher {
    * @param {string} category - Complaint category
    * @returns {Promise<Array>} List of local complaints
    */
-  async fetchLocalComplaints(locality, category) {
-    return this.prisma.complaint.findMany({
+  async fetchLocalComplaints(locality, departmentId) {
+  let localComplaints = await this.prisma.complaint.findMany({
       where: {
         // Exact locality match
         locality: locality,
 
         // Category match (allowing partial match)
-        category: {
-          contains: category,
-        },
+        departmentId: departmentId.id,
 
         // Status filter
         OR: [{ status: "PENDING" }, { status: "IN_PROGRESS" }],
@@ -100,6 +97,8 @@ class ComplaintMatcher {
         matchCounter: true,
       },
     });
+    console.log("LocalComplaints: ",localComplaints)
+    return localComplaints;
   }
 
   

@@ -52,12 +52,14 @@ const findAndHandleSimilarComplaints = async (
   matcher,
   complaintVar,
   locality,
+  departmentId,
   res
 ) => {
   // Find similar complaints
   const existingComplaints = await matcher.findSimilarComplaints(
     complaintVar,
-    locality
+    locality,
+    departmentId
   );
 
   // Check if there are any similar complaints
@@ -71,6 +73,7 @@ const findAndHandleSimilarComplaints = async (
 
       return res.json({
         message: `Similar complaint already exists. Please note down the following id to track the status of your complaint: ${complaint.id}`,
+        complaintId: complaint.id,
       });
     }
 
@@ -79,7 +82,7 @@ const findAndHandleSimilarComplaints = async (
 
     return res.json({
       message: `Multiple similar complaints found`,
-      similarComplaintIds: complaintIds,
+      complaintId: complaintIds[0].id,
     });
   }
 
@@ -131,6 +134,7 @@ router.post(
         matcher,
         complaintVar,
         locality,
+        departmentId,
         res
       );
 
