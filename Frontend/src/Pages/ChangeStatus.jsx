@@ -3,7 +3,7 @@ import ChangeStatuscomp from "../Components/ChangeStatuscomp";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 
-const ChangeStatus = () => {
+const ChangeStatus = ({ adminDepartment }) => {
     const location = useLocation();
     const [selectedComplaint, setSelectedComplaint] = useState(
         location.state?.complaint || null
@@ -115,6 +115,11 @@ const ChangeStatus = () => {
     const getPriorityBadgeClass = (priority) => {
         const baseClass = "px-2 py-1 rounded-full text-xs font-medium";
         return `${baseClass} ${getPriorityColor(priority)}`;
+    };
+    
+    // Check if the complaint is from the admin's department
+    const canChangeStatus = (complaint) => {
+        return complaint.department?.name === adminDepartment;
     };
 
     return (
@@ -231,26 +236,48 @@ const ChangeStatus = () => {
                                     Actions
                                 </h2>
 
-                                <button
-                                    className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300 ease-in-out flex items-center justify-center gap-2 font-medium"
-                                    onClick={() => openModal(selectedComplaint)}
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-5 w-5"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
+                                {canChangeStatus(selectedComplaint) ? (
+                                    <button
+                                        className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300 ease-in-out flex items-center justify-center gap-2 font-medium"
+                                        onClick={() => openModal(selectedComplaint)}
                                     >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                        />
-                                    </svg>
-                                    Change Status
-                                </button>
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-5 w-5"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                            />
+                                        </svg>
+                                        Change Status
+                                    </button>
+                                ) : (
+                                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+                                        <svg 
+                                            xmlns="http://www.w3.org/2000/svg" 
+                                            className="h-6 w-6 mx-auto mb-2 text-gray-400" 
+                                            fill="none" 
+                                            viewBox="0 0 24 24" 
+                                            stroke="currentColor"
+                                        >
+                                            <path 
+                                                strokeLinecap="round" 
+                                                strokeLinejoin="round" 
+                                                strokeWidth={2} 
+                                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" 
+                                            />
+                                        </svg>
+                                        <p className="text-gray-600 text-sm">
+                                            You can only change status for complaints in your department
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -300,6 +327,9 @@ const ChangeStatus = () => {
                                                 Description
                                             </th>
                                             <th className="px-4 py-3 text-sm font-medium text-gray-500">
+                                                Department
+                                            </th>
+                                            <th className="px-4 py-3 text-sm font-medium text-gray-500">
                                                 Priority
                                             </th>
                                             <th className="px-4 py-3 text-sm font-medium text-gray-500">
@@ -329,6 +359,9 @@ const ChangeStatus = () => {
                                                     </td>
                                                     <td className="px-4 py-3 text-sm text-gray-800 max-w-xs truncate">
                                                         {comp.description}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm text-gray-800">
+                                                        {comp.department?.name || "Unknown"}
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <span
@@ -394,7 +427,7 @@ const ChangeStatus = () => {
                                         ) : (
                                             <tr>
                                                 <td
-                                                    colSpan="6"
+                                                    colSpan="7"
                                                     className="px-4 py-8 text-center text-gray-500"
                                                 >
                                                     <svg
@@ -450,7 +483,7 @@ const ChangeStatus = () => {
                 </div>
             )}
 
-            {isModalOpen && (
+            {isModalOpen && canChangeStatus(selectedComplaint) && (
                 <ChangeStatuscomp
                     complaint={selectedComplaint}
                     closeModal={closeModal}

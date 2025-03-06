@@ -425,6 +425,7 @@ const Adminhome = ({ logout }) => {
 
             {selectedComplaint && (
                 <ChangeStatus
+                    adminDepartment = {departmentName}
                     complaint={selectedComplaint}
                     closeModal={handleCloseModal}
                     updateComplaintStatus={updateComplaintStatus}

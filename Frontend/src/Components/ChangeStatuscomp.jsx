@@ -131,7 +131,6 @@ const ChangeStatuscomp = ({ complaint, closeModal, updateComplaintStatus }) => {
         const formData = new FormData();
         formData.append("status", selectedStatus);
 
-        // Append each file in the 'image' array to the form data
         Array.from(image).forEach((file) => {
             formData.append("attachments", file);
         });
@@ -148,6 +147,14 @@ const ChangeStatuscomp = ({ complaint, closeModal, updateComplaintStatus }) => {
 
             updateComplaintStatus(complaint.id, selectedStatus);
             alert("Status updated successfully!");
+
+            // Update local storage
+            const storedComplaints = JSON.parse(localStorage.getItem("complaints")) || [];
+            const updatedComplaints = storedComplaints.map(c => 
+                c.id === complaint.id ? { ...c, status: selectedStatus } : c
+            );
+            localStorage.setItem("complaints", JSON.stringify(updatedComplaints));
+
             closeModal();
             navigate("/");
         } catch (error) {
